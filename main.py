@@ -14,6 +14,7 @@ fonte = pygame.font.SysFont("Arial", 18)
 som = pygame.mixer.Sound("assets/Space_Machine_Power.mp3")
 som.play(-1)
 estrelas = {}
+marcacoes = []
 raio = 5
 branco = (225,225,225)
 preto = (0,0,0)
@@ -21,7 +22,7 @@ preto = (0,0,0)
 
 
 def salvarMarcacoes():
-     with open("Estralas Marcadas.txt", "w") as arquivo:
+     with open("Estrelas Marcadas.txt", "w") as arquivo:
           for nome, posicao in estrelas.items():
                arquivo.write(f"{posicao[0]},{posicao[1]},{nome}\n")
 
@@ -42,6 +43,14 @@ def carregarMarcacoes():
 
 def excluirMarcacoes():
      estrelas.clear()
+
+def calcularDistancia(estrela1, estrela2):
+     if not isinstance(estrela1, tuple) or not isinstance(estrela2, tuple):
+          return
+     x1, y1 = estrela1
+     x2, y2 = estrela2
+     distancia = math.sqrt((x2-x1) ** 2 + (y2 - y1) ** 2)
+     return distancia
 
 
 while True:
@@ -72,9 +81,25 @@ while True:
 
      for item, posicoes in estrelas.items():
         pygame.draw.circle(tela, branco, posicoes, raio)
+        pygame.draw.line(tela,branco,list(estrelas.values())[0], posicoes)
         fonte = pygame.font.Font(None, 20)
         texto = fonte.render(item, True, (255, 255, 255))
         tela.blit(texto, (posicoes[0] + 10, posicoes[1] + 10))
+
+     listaDeEstrelas = list(estrelas.values())
+     for i in range(len (listaDeEstrelas) - 1):
+          estrelaAtual = listaDeEstrelas[i]
+          proximaEstrela = listaDeEstrelas [i + 1]
+          if i < len(listaDeEstrelas) - 2:
+               pygame.draw.line(tela, branco, estrelaAtual, proximaEstrela)
+
+     if len(estrelas) >= 2:
+          primeiraEstrela = list(estrelas.values())[0]
+          segundaEstrela = list(estrelas.values())[1]
+          distancia = calcularDistancia(primeiraEstrela, segundaEstrela)
+          textoDistancia = fonte.render(f"Distância: {distancia:.2f}", True, branco)
+          tela.blit(textoDistancia, (10,130))
+
 
      textoOpcoes = fonte.render("Opções:", True, branco)
      textoSalvar = fonte.render("F10 - Salvar marcações", True, branco)
